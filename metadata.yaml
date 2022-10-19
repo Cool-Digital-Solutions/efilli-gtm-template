@@ -1,5 +1,7 @@
 homepage: "https://efilli.com"
 documentation: "https://efilli.com"
 versions:
+  - sha: c1dd084de48aae4834dfcd0378ea4bdb88197573
+    changeNotes: Added new fields
   - sha: f911eace37d683a90915b23d613ab6e8b4316d14
     changeNotes: Initial release
