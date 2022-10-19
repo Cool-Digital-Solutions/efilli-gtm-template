@@ -1,19 +1,11 @@
-﻿___TERMS_OF_SERVICE___
-
-By creating or modifying this file you agree to Google Tag Manager's Community
-Template Gallery Developer Terms of Service available at
-https://developers.google.com/tag-manager/gallery-tos (or such other URL as
-Google may provide), as modified from time to time.
-
-
-___INFO___
+﻿___INFO___
 
 {
   "type": "TAG",
   "id": "cvt_temp_public_id",
   "version": 1,
   "securityGroups": [],
-  "displayName": "Efilli İzin Yönetimi",
+  "displayName": "Efilli Consent Management",
   "categories": [
     "TAG_MANAGEMENT",
     "PERSONALIZATION"
@@ -34,10 +26,32 @@ ___TEMPLATE_PARAMETERS___
 
 [
   {
-    "type": "TEXT",
-    "name": "key",
-    "displayName": "Efilli Lisans Kodu",
-    "simpleValueType": true
+    "type": "GROUP",
+    "name": "sdkSettings",
+    "displayName": "SDK Settings",
+    "groupStyle": "ZIPPY_OPEN",
+    "subParams": [
+      {
+        "type": "CHECKBOX",
+        "name": "injectSdk",
+        "checkboxText": "Load Efilli SDK",
+        "simpleValueType": true,
+        "help": "Check this if the Efilli SDK is not already set"
+      },
+      {
+        "type": "TEXT",
+        "name": "key",
+        "displayName": "License key",
+        "simpleValueType": true,
+        "enablingConditions": [
+          {
+            "paramName": "injectSdk",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ]
+      }
+    ]
   }
 ]
 
@@ -67,22 +81,36 @@ if(savedConsentState && savedConsentState.efilli_essential !== undefined) {
 
 setDefaultConsentState(defaultConsentState);
 
-const efilliSdkUrl = 'https://cdn.efilli.com/efl.js?key=' + data.key;
+if(!!data.injectSdk) {
+  loadEfilliSdk();
+} else {
+  addConsentFunctionsToEfilliSdk();
+  data.gtmOnSuccess();
+}
 
-function onSuccessInjectScript() {
+
+
+
+function loadEfilliSdk() {
+  const efilliSdkUrl = 'https://cdn.efilli.com/efl.js?key=' + data.key;
+  injectScript(efilliSdkUrl, onSuccessInjectScript, onFailureInjectScript);
+}
+
+function addConsentFunctionsToEfilliSdk() {
   callInWindow('efilli.setGtmSetDefaultConsentStateFn', setDefaultConsentState);
   callInWindow('efilli.setGtmUpdateConsentStateFn', updateConsentState);
+}
+
+function onSuccessInjectScript() {
+  addConsentFunctionsToEfilliSdk();
   log('efilli inject script succeed');
+  data.gtmOnSuccess();
 }
 
 function onFailureInjectScript() {
   log('efilli inject script failed');
   data.gtmOnFailure();
 }
-
-injectScript(efilliSdkUrl, onSuccessInjectScript, onFailureInjectScript);
-
-data.gtmOnSuccess();
 
 
 ___WEB_PERMISSIONS___
@@ -475,6 +503,6 @@ scenarios: []
 
 ___NOTES___
 
-Created on 10/18/2022, 9:59:39 PM
+Created on 10/19/2022, 2:05:47 PM
 
 
